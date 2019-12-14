@@ -1,18 +1,13 @@
 # -*- coding: utf-8 -*-
 import scrapy
-import datetime
-import calendar
-import pandas as pd
-from io import StringIO
-from urllib.parse import urlencode
-from trade.items import DataDailyfutureItem
 
 
-class DataDailyfutureSpider(scrapy.Spider):
-    name = 'data_dailyfuture'
-    allowed_domains = ['http://www.taifex.com.tw']
+class ThreepsDailystockSpider(scrapy.Spider):
+    name = 'threeps_dailystock'
+    allowed_domains = ['http://www.taifex.com.tw/cht/3/dlFutContractsDateDown']
     custon_settings = {'ITEM_PIPELINES': {
         'trade.pipelines.DataDailyFuturePipeline': 300}}
+
 
     def start_requests(self):
 
@@ -28,12 +23,12 @@ class DataDailyfutureSpider(scrapy.Spider):
                          get_period(year=2019,
                                     month=12))
         params = {
+            "goday": "",
             "queryStartDate": start,
             "queryEndDate": end,
-            "commodity_id": 'all',
-            "commodity_id2": "",
-            "down_type": '1'}
-        url = "https://www.taifex.com.tw/cht/3/dlFutDataDown?" + \
+            "commodityId": 'MXF'}
+
+        url = "http://www.taifex.com.tw/cht/3/dlFutContractsDateDown?" + \
             urlencode(params)
         yield scrapy.Request(
             url=url,
@@ -54,12 +49,33 @@ class DataDailyfutureSpider(scrapy.Spider):
         return df
 
     def parse(self, response):
-        def fmt_float(value):
+        Tx_array = res.text.replace('"',"").replace("'","").split("\r\n")
+        try:
+            index_array = range(int((len(Tx_array)-2)/3))
+            Date0 = Tx_array[1].split(",")[0]
+            Date = datetime.date(int(Date0.split("/")[0]), int(Date0.split("/")[1]), int(Date0.split("/")[2]))
+        except:
+            print  (Date0 + "   Fail")
+
+        for i in index_array:
+            ins = 'insert into threeps_dailyfuture(DATE ,commodity, ZY_amount,TZ_amount,WZ_amount,sum_amount) VALUES(?,?,?,?,?,?)'
+            Date0 = Tx_array[3*i+1].split(",")[0]
+            Date = datetime.date(int(Date0.split("/")[0]), int(Date0.split("/")[1]), int(Date0.split("/")[2]))
+            commodity = "MTX"
+            Future_ZY = int(round(int(Tx_array[3*i+1].split(",")[13]),4))
+            Future_TZ = int(round(int(Tx_array[3*i+2].split(",")[13]),4))
+            Future_WZ = int(round(int(Tx_array[3*i+3].split(",")[13]),4))
+            Future_Sum = int(round((Future_ZY + Future_TZ + Future_WZ),4))
+            INSERTDATA = (str(Date),commodity,float(Future_ZY),float(Future_TZ),float(Future_WZ),float(Future_Sum))
             try:
-                return float(value)
-            except Exception:
-                return 0.0
-        df = self.transform_data(response)
+                curs.execute(ins,INSERTDATA) 
+
+            except:
+                print  (str(Date) + " Data Repeat")
+            conn.commit()
+    #print  (Date0 + "   Sucess")
+    return 
+        df = self.transform_data(df)
         item = DataDailyfutureItem()
         for idx in df.index:
             item['date'] = df["交易日期"][idx]

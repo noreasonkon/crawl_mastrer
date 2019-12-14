@@ -35,10 +35,13 @@ class DataDailyFuturePipeline(object):
         self.conn.close()
 
     def process_item(self, item, spider):
-        insert_sql = "insert or ignore into {0}({1}) values ({2})".format(
+        insert_sql = "insert or replace into {0}({1}) values ({2})".format(
             self.sqlite_table, ', '.join(item.keys()),
             ', '.join(['?'] * len(item.keys())))
         values = tuple(item.values())
+
+        #print(insert_sql)
+        #print(values)
         try:
             self.cur.execute(insert_sql, values)
             self.conn.commit()

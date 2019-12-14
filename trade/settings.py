@@ -90,6 +90,8 @@ ROBOTSTXT_OBEY = True
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 # sqlite 配置
-SQLITE_DB_NAME = (r"D:\Users\walker.yang\Documents\Github\tradeAnalysisServer\db.sqlite3")
+SQLITE_DB_NAME = (r"D:\Github\tradeAnalysisServer\data.sqlite3")
 ITEM_PIPELINES = {
     'trade.pipelines.DataDailyFuturePipeline': 300}
+#  setting message
+LOG_LEVEL= 'WARNING'

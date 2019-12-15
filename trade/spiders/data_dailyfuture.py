@@ -11,8 +11,6 @@ from trade.items import DataDailyfutureItem
 class DataDailyfutureSpider(scrapy.Spider):
     name = 'data_dailyfuture'
     allowed_domains = ['http://www.taifex.com.tw']
-    custon_settings = {'ITEM_PIPELINES': {
-        'trade.pipelines.DataDailyFuturePipeline': 300}}
 
     def start_requests(self):
 

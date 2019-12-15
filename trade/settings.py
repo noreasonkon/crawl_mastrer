@@ -10,7 +10,6 @@
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 BOT_NAME = 'trade'
-
 SPIDER_MODULES = ['trade.spiders']
 NEWSPIDER_MODULE = 'trade.spiders'
 COOKIES_ENABLED = False
@@ -22,14 +21,14 @@ COOKIES_ENABLED = False
 ROBOTSTXT_OBEY = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-#CONCURRENT_REQUESTS = 32
+CONCURRENT_REQUESTS = 16
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
 #DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
-#CONCURRENT_REQUESTS_PER_DOMAIN = 16
+CONCURRENT_REQUESTS_PER_DOMAIN = 1
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
@@ -90,8 +89,14 @@ ROBOTSTXT_OBEY = True
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 # sqlite 配置
-SQLITE_DB_NAME = (r"D:\Github\tradeAnalysisServer\data.sqlite3")
+SQLITE_DB_NAME = (r"D:\Crawler\trade\crawl_mastrer\data.sqlite3")
 ITEM_PIPELINES = {
-    'trade.pipelines.DataDailyFuturePipeline': 300}
+    'trade.pipelines.DataDailyfuturePipeline': 300,
+  #  'trade.pipelines.ThreepsDailyfuturePipeline': 400,
+
+    }
 #  setting message
 LOG_LEVEL= 'WARNING'
+RETRY_TIMES = 5
+
+RETRY_HTTP_CODES = [400, 404, 500, 502, 503, 504, 408]
